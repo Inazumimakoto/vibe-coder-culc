@@ -7,6 +7,7 @@ const equalsBtn = document.getElementById('equalsBtn');
 const clearBtn = document.getElementById('clearBtn');
 const thinking = document.getElementById('thinking');
 const thinkingText = document.getElementById('thinkingText');
+const result = document.getElementById('result');
 const modelSelector = document.getElementById('modelSelector');
 const paymentOverlay = document.getElementById('paymentOverlay');
 const paymentButton = document.getElementById('paymentButton');
@@ -14,6 +15,7 @@ const evilCloseBtn = document.getElementById('evilCloseBtn');
 const buttonText = document.getElementById('buttonText');
 const buttonSpinner = document.getElementById('buttonSpinner');
 const paymentMessage = document.getElementById('payment-message');
+const evenCheckBtn = document.getElementById('evenCheckBtn');
 
 // Calculator state
 let currentExpression = '';
@@ -21,6 +23,7 @@ let pendingResult = null;
 let stripe = null;
 let elements = null;
 let paymentElement = null;
+let isPro = false; // Pro membership status
 
 // Evil close button state
 let closeButtonHoverCount = 0;
@@ -47,6 +50,9 @@ function init() {
     }
   });
   evilCloseBtn.addEventListener('click', handleEvilButtonClick);
+
+  // Pro feature: Even check
+  evenCheckBtn.addEventListener('click', checkEven);
 }
 
 function handleButtonClick(value) {
@@ -90,6 +96,8 @@ function clearAll() {
   display.textContent = '0';
   display.style.fontSize = '';
   thinking.classList.remove('active');
+  result.className = 'result';
+  result.textContent = '';
   pendingResult = null;
 }
 
@@ -100,7 +108,6 @@ async function calculate() {
     return;
   }
 
-  // Show thinking with model name
   const selectedModel = modelSelector.value;
   const modelDisplayName = modelSelector.options[modelSelector.selectedIndex].text;
   thinkingText.textContent = `${modelDisplayName} が計算中...`;
@@ -129,6 +136,58 @@ async function calculate() {
     display.textContent = 'Error';
     console.error('Calculation error:', error);
   }
+}
+
+// Pro feature: Check if number is even (using AI of course!)
+async function checkEven() {
+  if (!isPro) return;
+
+  const num = currentExpression.trim();
+  if (!num) {
+    showResult('数字を入力してください', true);
+    return;
+  }
+
+  const selectedModel = modelSelector.value;
+  const modelDisplayName = modelSelector.options[modelSelector.selectedIndex].text;
+  thinkingText.textContent = `${modelDisplayName} が偶数判定中...`;
+  thinking.classList.add('active');
+
+  try {
+    const response = await fetch('/api/even-check', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ number: num, model: selectedModel }),
+    });
+
+    const data = await response.json();
+    thinking.classList.remove('active');
+
+    if (data.error) {
+      showResult('判定エラー', true);
+    } else {
+      showResult(data.result, false);
+    }
+  } catch (error) {
+    thinking.classList.remove('active');
+    showResult('エラーが発生しました', true);
+    console.error('Even check error:', error);
+  }
+}
+
+function showResult(message, isError) {
+  result.textContent = message;
+  result.className = 'result active' + (isError ? ' error' : '');
+}
+
+// Unlock Pro features
+function unlockPro() {
+  isPro = true;
+  evenCheckBtn.disabled = false;
+  evenCheckBtn.classList.add('unlocked');
+  document.querySelector('.pro-badge').textContent = '💎 Pro会員';
 }
 
 function handleEvilButtonHover(e) {
@@ -172,6 +231,9 @@ function handleEvilButtonClick() {
     updateDisplay();
     pendingResult = null;
   }
+
+  // Unlock Pro after "payment" (closing the modal counts as payment lol)
+  unlockPro();
 
   resetEvilButton();
 }
@@ -258,6 +320,7 @@ async function handlePayment() {
       setLoading(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       hidePaymentModal();
+      unlockPro();
 
       if (pendingResult) {
         currentExpression = pendingResult;

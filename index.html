@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AI電卓 - Powered by Gemini</title>
-  <meta name="description" content="次世代AI電卓 - Google Geminiが計算">
+  <title>CalcuAI - 浮動小数点誤差のない次世代電卓</title>
+  <meta name="description" content="次世代AI電卓 - Google Geminiが計算。浮動小数点誤差なし。">
   <link rel="stylesheet" href="style.css">
   <script src="https://js.stripe.com/v3/"></script>
 </head>
@@ -59,6 +59,15 @@
         <button class="btn op" id="equalsBtn">=</button>
       </div>
 
+      <!-- Pro Features -->
+      <div class="pro-features" id="proFeatures">
+        <div class="pro-badge">💎 Pro会員限定</div>
+        <button class="btn pro-btn" id="evenCheckBtn" disabled>
+          <span class="lock-icon">🔒</span>
+          偶数判定
+        </button>
+      </div>
+
       <div class="thinking-container" id="thinkingContainer">
         <div class="thinking" id="thinking">
           <div class="thinking-dots">
@@ -66,6 +75,10 @@
           </div>
           <p id="thinkingText">AI計算中...</p>
         </div>
+      </div>
+
+      <div class="result-container" id="resultContainer">
+        <div class="result" id="result"></div>
       </div>
     </main>
   </div>
@@ -89,6 +102,7 @@
       <div class="payment-features">
         <p>✓ 無制限の計算結果表示</p>
         <p>✓ 高速AI計算エンジン</p>
+        <p>✓ <strong>偶数判定機能</strong> ← NEW!</p>
         <p>✓ 24時間サポート</p>
       </div>
 

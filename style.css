@@ -205,6 +205,54 @@ body {
   justify-content: flex-start;
 }
 
+/* ===== Pro Features ===== */
+.pro-features {
+  margin-top: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid #333;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pro-badge {
+  font-size: 0.7rem;
+  color: #ffd700;
+  white-space: nowrap;
+}
+
+.pro-btn {
+  flex: 1;
+  aspect-ratio: auto !important;
+  height: 44px;
+  font-size: 0.9rem !important;
+  background: #444 !important;
+  color: #888 !important;
+  border-radius: 8px !important;
+  gap: 6px;
+}
+
+.pro-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pro-btn.unlocked {
+  background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%) !important;
+  color: white !important;
+  cursor: pointer;
+}
+
+.pro-btn.unlocked .lock-icon {
+  display: none;
+}
+
+.lock-icon {
+  font-size: 0.8rem;
+}
+
 /* ===== Result ===== */
 .result-container {
   min-height: 80px;
