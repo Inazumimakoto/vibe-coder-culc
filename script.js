@@ -10,72 +10,136 @@ const thinking = document.getElementById('thinking');
 const result = document.getElementById('result');
 const paymentOverlay = document.getElementById('paymentOverlay');
 const paymentButton = document.getElementById('paymentButton');
-const skipPayment = document.getElementById('skipPayment');
+const evilCloseBtn = document.getElementById('evilCloseBtn');
 const buttonText = document.getElementById('buttonText');
 const buttonSpinner = document.getElementById('buttonSpinner');
 const paymentMessage = document.getElementById('payment-message');
 
 // Calculator state
 let currentExpression = '';
-let pendingResult = null; // Store the result until payment is complete
+let pendingResult = null;
 let stripe = null;
 let elements = null;
 let paymentElement = null;
 
+// Evil close button state
+let closeButtonHoverCount = 0;
+let closeButtonSize = 24;
+
 // Initialize
 function init() {
-  // Initialize Stripe
   stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
 
-  // Number and operator buttons
   document.querySelectorAll('.btn[data-value]').forEach(btn => {
     btn.addEventListener('click', () => {
       appendToExpression(btn.dataset.value);
     });
   });
 
-  // Equals button
   equalsBtn.addEventListener('click', calculate);
-
-  // Clear button
   clearBtn.addEventListener('click', clearAll);
 
-  // Input field sync
   expressionInput.addEventListener('input', (e) => {
     currentExpression = e.target.value;
     updateDisplay();
   });
 
-  // Enter key to calculate
   expressionInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       calculate();
     }
   });
 
-  // Payment button
   paymentButton.addEventListener('click', handlePayment);
 
-  // Skip payment button
-  skipPayment.addEventListener('click', () => {
-    hidePaymentModal();
-    showResult('結果を見るには課金が必要です 💸', true);
-  });
+  // Evil close button - moves and shrinks!
+  evilCloseBtn.addEventListener('mouseenter', handleEvilButtonHover);
+  evilCloseBtn.addEventListener('click', handleEvilButtonClick);
 }
 
-// Append value to expression
+// Evil close button hover - make it run away!
+function handleEvilButtonHover() {
+  closeButtonHoverCount++;
+
+  // Get modal dimensions
+  const modal = document.querySelector('.payment-modal');
+  const modalRect = modal.getBoundingClientRect();
+  const btnRect = evilCloseBtn.getBoundingClientRect();
+
+  // Random position within the modal
+  const maxX = modalRect.width - btnRect.width - 20;
+  const maxY = modalRect.height - btnRect.height - 20;
+
+  const randomX = Math.floor(Math.random() * maxX) + 10;
+  const randomY = Math.floor(Math.random() * maxY) + 10;
+
+  // Move the button
+  evilCloseBtn.style.position = 'absolute';
+  evilCloseBtn.style.left = randomX + 'px';
+  evilCloseBtn.style.top = randomY + 'px';
+
+  // Shrink the button after every 2 hovers
+  if (closeButtonHoverCount % 2 === 0 && closeButtonSize > 12) {
+    closeButtonSize -= 2;
+    evilCloseBtn.style.width = closeButtonSize + 'px';
+    evilCloseBtn.style.height = closeButtonSize + 'px';
+    evilCloseBtn.style.fontSize = (closeButtonSize * 0.6) + 'px';
+  }
+
+  // Taunt messages
+  const taunts = [
+    'あれ？どこ行った？',
+    '逃げちゃった😜',
+    'もう少し頑張って！',
+    '課金した方が早いよ？',
+    'そっちじゃないよ〜',
+    '小さくなっちゃった...',
+    'Pro会員になろう！',
+    'もうちょっと！'
+  ];
+
+  if (closeButtonHoverCount <= 8) {
+    paymentMessage.textContent = taunts[closeButtonHoverCount - 1] || taunts[0];
+    paymentMessage.style.color = '#ff9500';
+  }
+}
+
+// Evil close button click - finally let them close it
+function handleEvilButtonClick() {
+  hidePaymentModal();
+
+  // Show the result! They earned it.
+  if (pendingResult) {
+    showResult('😅 お疲れ様！ようやく見れたね！\n\n' + pendingResult, false);
+    pendingResult = null;
+  }
+
+  // Reset evil button state for next time
+  resetEvilButton();
+}
+
+// Reset evil button
+function resetEvilButton() {
+  closeButtonHoverCount = 0;
+  closeButtonSize = 24;
+  evilCloseBtn.style.position = '';
+  evilCloseBtn.style.left = '';
+  evilCloseBtn.style.top = '';
+  evilCloseBtn.style.width = '';
+  evilCloseBtn.style.height = '';
+  evilCloseBtn.style.fontSize = '';
+}
+
 function appendToExpression(value) {
   currentExpression += value;
   expressionInput.value = currentExpression;
   updateDisplay();
 }
 
-// Update display
 function updateDisplay() {
   display.textContent = currentExpression || '0';
 }
 
-// Clear everything
 function clearAll() {
   currentExpression = '';
   expressionInput.value = '';
@@ -86,7 +150,6 @@ function clearAll() {
   pendingResult = null;
 }
 
-// Calculate using Gemini API
 async function calculate() {
   const expression = currentExpression.trim();
 
@@ -95,7 +158,6 @@ async function calculate() {
     return;
   }
 
-  // Show thinking state
   thinking.classList.add('active');
   result.className = 'result';
   result.textContent = '';
@@ -115,7 +177,6 @@ async function calculate() {
     if (data.error) {
       showResult(data.error, true);
     } else {
-      // Store the result and show payment modal instead!
       pendingResult = data.result;
       showPaymentModal();
     }
@@ -126,13 +187,13 @@ async function calculate() {
   }
 }
 
-// Show payment modal
 async function showPaymentModal() {
   paymentOverlay.classList.add('active');
   paymentMessage.textContent = '';
+  paymentMessage.style.color = '';
+  resetEvilButton();
 
   try {
-    // Create PaymentIntent on the server
     const response = await fetch('/api/create-payment', {
       method: 'POST',
       headers: {
@@ -147,7 +208,6 @@ async function showPaymentModal() {
       return;
     }
 
-    // Create Stripe Elements
     elements = stripe.elements({
       clientSecret,
       appearance: {
@@ -159,7 +219,6 @@ async function showPaymentModal() {
       },
     });
 
-    // Create and mount the Payment Element
     paymentElement = elements.create('payment');
     paymentElement.mount('#payment-element');
   } catch (error) {
@@ -168,7 +227,6 @@ async function showPaymentModal() {
   }
 }
 
-// Hide payment modal
 function hidePaymentModal() {
   paymentOverlay.classList.remove('active');
   if (paymentElement) {
@@ -177,7 +235,6 @@ function hidePaymentModal() {
   }
 }
 
-// Handle payment submission
 async function handlePayment() {
   if (!stripe || !elements) {
     paymentMessage.textContent = '決済システムの読み込み中です...';
@@ -200,7 +257,6 @@ async function handlePayment() {
       paymentMessage.textContent = error.message;
       setLoading(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      // Payment successful! Show the result
       hidePaymentModal();
       showResult('💎 Pro会員様、ようこそ！\n\n' + pendingResult, false);
       pendingResult = null;
@@ -212,7 +268,6 @@ async function handlePayment() {
   }
 }
 
-// Set loading state
 function setLoading(isLoading) {
   if (isLoading) {
     paymentButton.disabled = true;
@@ -225,11 +280,9 @@ function setLoading(isLoading) {
   }
 }
 
-// Show result
 function showResult(message, isError) {
   result.textContent = message;
   result.className = 'result active' + (isError ? ' error' : '');
 }
 
-// Start the app
 init();
