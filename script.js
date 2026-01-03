@@ -6,6 +6,8 @@ const display = document.getElementById('display');
 const equalsBtn = document.getElementById('equalsBtn');
 const clearBtn = document.getElementById('clearBtn');
 const thinking = document.getElementById('thinking');
+const thinkingText = document.getElementById('thinkingText');
+const modelSelector = document.getElementById('modelSelector');
 const paymentOverlay = document.getElementById('paymentOverlay');
 const paymentButton = document.getElementById('paymentButton');
 const evilCloseBtn = document.getElementById('evilCloseBtn');
@@ -98,6 +100,10 @@ async function calculate() {
     return;
   }
 
+  // Show thinking with model name
+  const selectedModel = modelSelector.value;
+  const modelDisplayName = modelSelector.options[modelSelector.selectedIndex].text;
+  thinkingText.textContent = `${modelDisplayName} が計算中...`;
   thinking.classList.add('active');
 
   try {
@@ -106,7 +112,7 @@ async function calculate() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ expression }),
+      body: JSON.stringify({ expression, model: selectedModel }),
     });
 
     const data = await response.json();

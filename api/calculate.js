@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { expression } = req.body;
+    const { expression, model } = req.body;
 
     if (!expression) {
         return res.status(400).json({ error: '数式を入力してください！' });
@@ -24,6 +24,9 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'APIキーが設定されていません' });
     }
 
+    // Use provided model or default to gemini-3-flash-preview
+    const selectedModel = model || 'gemini-3-flash-preview';
+
     try {
         const prompt = `Calculate: ${expression}
 
@@ -31,7 +34,7 @@ Return ONLY the numerical result. No explanation, no comments, just the number.
 If invalid, return "Error".`;
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
