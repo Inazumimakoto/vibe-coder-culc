@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 計算ができない場合や意味不明な入力の場合は、面白くツッコんでください。`;
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
