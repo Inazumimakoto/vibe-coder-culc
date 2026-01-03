@@ -515,24 +515,51 @@ body {
 
 /* ===== Responsive ===== */
 @media (max-width: 420px) {
+  .ai-header {
+    display: none;
+    /* Hide on mobile to save space */
+  }
+
   .container {
-    padding: 16px;
-    padding-top: max(16px, env(safe-area-inset-top));
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding: 12px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
 
   .display {
-    font-size: 3.5rem;
+    font-size: 3rem;
     padding: 0 10px;
   }
 
   .button-grid {
-    gap: 10px;
+    gap: 8px;
   }
 
   .btn {
-    font-size: 2.2rem;
-    /* Was 1.7rem */
+    font-size: 2rem;
+  }
+
+  .pro-features {
+    margin-top: 10px;
+    padding: 8px;
+  }
+
+  .pro-btn {
+    height: 36px;
+    font-size: 0.8rem !important;
+  }
+
+  .payment-modal {
+    padding: 20px 16px;
+    max-height: 85vh;
+  }
+
+  .payment-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .price-amount {
+    font-size: 1.8rem;
   }
 
   .payment-modal {
