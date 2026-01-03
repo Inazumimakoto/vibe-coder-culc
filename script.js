@@ -5,7 +5,7 @@ const STRIPE_PUBLISHABLE_KEY = 'pk_test_51SlPkKAdKBClfnbwwwgclWDkim8nBHeiHPbmNtk
 const display = document.getElementById('display');
 const equalsBtn = document.getElementById('equalsBtn');
 const clearBtn = document.getElementById('clearBtn');
-const thinking = document.getElementById('thinking');
+const thinkingOverlay = document.getElementById('thinkingOverlay');
 const thinkingText = document.getElementById('thinkingText');
 const result = document.getElementById('result');
 const modelSelector = document.getElementById('modelSelector');
@@ -95,7 +95,7 @@ function clearAll() {
   currentExpression = '';
   display.textContent = '0';
   display.style.fontSize = '';
-  thinking.classList.remove('active');
+  thinkingOverlay.classList.remove('active');
   result.className = 'result';
   result.textContent = '';
   pendingResult = null;
@@ -111,7 +111,7 @@ async function calculate() {
   const selectedModel = modelSelector.value;
   const modelDisplayName = modelSelector.options[modelSelector.selectedIndex].text;
   thinkingText.textContent = `${modelDisplayName} が計算中...`;
-  thinking.classList.add('active');
+  thinkingOverlay.classList.add('active');
 
   try {
     const response = await fetch('/api/calculate', {
@@ -123,7 +123,7 @@ async function calculate() {
     });
 
     const data = await response.json();
-    thinking.classList.remove('active');
+    thinkingOverlay.classList.remove('active');
 
     if (data.error) {
       display.textContent = 'Error';
@@ -132,7 +132,7 @@ async function calculate() {
       showPaymentModal();
     }
   } catch (error) {
-    thinking.classList.remove('active');
+    thinkingOverlay.classList.remove('active');
     display.textContent = 'Error';
     console.error('Calculation error:', error);
   }
@@ -151,7 +151,7 @@ async function checkEven() {
   const selectedModel = modelSelector.value;
   const modelDisplayName = modelSelector.options[modelSelector.selectedIndex].text;
   thinkingText.textContent = `${modelDisplayName} が偶数判定中...`;
-  thinking.classList.add('active');
+  thinkingOverlay.classList.add('active');
 
   try {
     const response = await fetch('/api/even-check', {
@@ -163,7 +163,7 @@ async function checkEven() {
     });
 
     const data = await response.json();
-    thinking.classList.remove('active');
+    thinkingOverlay.classList.remove('active');
 
     if (data.error) {
       showResult('判定エラー', true);
@@ -171,7 +171,7 @@ async function checkEven() {
       showResult(data.result, false);
     }
   } catch (error) {
-    thinking.classList.remove('active');
+    thinkingOverlay.classList.remove('active');
     showResult('エラーが発生しました', true);
     console.error('Even check error:', error);
   }
