@@ -64,25 +64,24 @@ body {
 
 /* ===== Display ===== */
 .display-container {
-  margin-bottom: auto;
-  /* Pushes display to top of available space if needed, or just flex spacing */
-  flex-shrink: 1;
-  /* Allow shrinking if needed */
+  margin-bottom: 20px;
+  flex: 1;
+  /* Take available space */
   min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .display {
   background: var(--bg-display);
-  padding: 20px 10px;
-  font-size: 5rem;
+  padding: 10px;
+  font-size: 4rem;
+  /* Smaller base font size */
   font-weight: 300;
   text-align: right;
   color: var(--text-light);
-  min-height: 100px;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
@@ -95,6 +94,8 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  flex-shrink: 0;
+  /* Don't shrink buttons too much */
 }
 
 .btn {
@@ -415,13 +416,14 @@ body {
 /* ===== Responsive ===== */
 @media (max-width: 420px) {
   .container {
-    padding: 12px;
-    padding-bottom: 30px;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
 
   .display {
     font-size: 3.5rem;
-    min-height: 80px;
+    padding: 0 10px;
   }
 
   .button-grid {
@@ -429,7 +431,7 @@ body {
   }
 
   .btn {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
   }
 
   .payment-modal {
@@ -443,6 +445,54 @@ body {
 
   .price-amount {
     font-size: 1.8rem;
+  }
+
+  /* Make buttons adjust to height if needed */
+  @media (max-height: 750px) {
+    .container {
+      padding: 10px;
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .button-grid {
+      gap: 8px;
+    }
+
+    .btn {
+      font-size: 1.5rem;
+    }
+
+    .display {
+      font-size: 3rem;
+      padding: 5px 10px;
+    }
+  }
+
+  @media (max-height: 650px) {
+    .container {
+      padding: 8px;
+      padding-top: max(5px, env(safe-area-inset-top));
+      padding-bottom: max(5px, env(safe-area-inset-bottom));
+    }
+
+    .button-grid {
+      gap: 6px;
+    }
+
+    .btn {
+      font-size: 1.3rem;
+    }
+
+    .display {
+      font-size: 2.5rem;
+      padding: 0 5px;
+    }
+
+    .result-container {
+      margin-top: 10px;
+      min-height: 60px;
+    }
   }
 }
 
