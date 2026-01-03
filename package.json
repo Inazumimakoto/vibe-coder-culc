@@ -1,0 +1,12 @@
+{
+    "name": "vibe-coder-culc",
+    "version": "1.0.0",
+    "private": true,
+    "description": "電卓アプリ with Gemini AI and Stripe payment",
+    "scripts": {
+        "dev": "npx serve -p 3456"
+    },
+    "dependencies": {
+        "stripe": "^14.0.0"
+    }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電卓</title>
+  <meta name="description" content="シンプルな電卓アプリ">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1 class="logo">電卓</h1>
+    </header>
+
+    <main class="calculator">
+      <div class="display-container">
+        <div class="display" id="display">0</div>
+      </div>
+
+      <div class="input-section">
+        <input type="text" id="expression" class="expression-input" placeholder="数式を入力..." autocomplete="off">
+      </div>
+
+      <div class="button-grid">
+        <button class="btn num" data-value="7">7</button>
+        <button class="btn num" data-value="8">8</button>
+        <button class="btn num" data-value="9">9</button>
+        <button class="btn op" data-value="/">÷</button>
+
+        <button class="btn num" data-value="4">4</button>
+        <button class="btn num" data-value="5">5</button>
+        <button class="btn num" data-value="6">6</button>
+        <button class="btn op" data-value="*">×</button>
+
+        <button class="btn num" data-value="1">1</button>
+        <button class="btn num" data-value="2">2</button>
+        <button class="btn num" data-value="3">3</button>
+        <button class="btn op" data-value="-">−</button>
+
+        <button class="btn num" data-value="0">0</button>
+        <button class="btn num" data-value=".">.</button>
+        <button class="btn clear" id="clearBtn">C</button>
+        <button class="btn op" data-value="+">+</button>
+
+        <button class="btn equals" id="equalsBtn">=</button>
+      </div>
+
+      <div class="result-container" id="resultContainer">
+        <div class="thinking" id="thinking">
+          <div class="thinking-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <p>計算中...</p>
+        </div>
+        <div class="result" id="result"></div>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2026 電卓</p>
+    </footer>
+  </div>
+
+  <!-- Evil Payment Modal -->
+  <div class="payment-overlay" id="paymentOverlay">
+    <div class="payment-modal">
+      <div class="payment-header">
+        <h2>🎉 計算完了！</h2>
+        <p>結果を表示するには<br><strong>電卓Pro</strong>への加入が必要です</p>
+      </div>
+
+      <div class="payment-price">
+        <span class="price-amount">¥9,980</span>
+        <span class="price-period">/月</span>
+      </div>
+
+      <div class="payment-features">
+        <p>✓ 無制限の計算結果表示</p>
+        <p>✓ 高速AI計算エンジン</p>
+        <p>✓ 24時間サポート</p>
+      </div>
+
+      <div class="payment-form-container">
+        <div id="payment-element"></div>
+        <div id="payment-message" class="payment-message"></div>
+      </div>
+
+      <button class="payment-button" id="paymentButton">
+        <span id="buttonText">今すぐ加入する</span>
+        <span id="buttonSpinner" class="spinner hidden"></span>
+      </button>
+
+      <p class="payment-note">※ テストモードです。実際に課金されません。<br>テストカード: 4242 4242 4242 4242</p>
+
+      <button class="payment-skip" id="skipPayment">やっぱりやめる（結果は見れません）</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

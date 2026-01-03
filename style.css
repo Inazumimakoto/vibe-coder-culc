@@ -1,0 +1,519 @@
+/* ===== CSS Variables ===== */
+:root {
+  --bg-main: #f5f5f5;
+  --bg-calculator: #ffffff;
+  --bg-display: #1c1c1c;
+  --bg-button: #e0e0e0;
+  --bg-button-hover: #d0d0d0;
+  --bg-op: #ff9500;
+  --bg-op-hover: #e08600;
+  --text-dark: #333333;
+  --text-light: #ffffff;
+  --text-muted: #888888;
+  --border-color: #cccccc;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+}
+
+/* ===== Reset & Base ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-main);
+  min-height: 100vh;
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ===== Container ===== */
+.container {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* ===== Header ===== */
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.tagline {
+  display: none;
+}
+
+/* ===== Calculator ===== */
+.calculator {
+  background: var(--bg-calculator);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+/* ===== Display ===== */
+.display-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.display {
+  background: var(--bg-display);
+  border-radius: var(--border-radius);
+  padding: 20px 16px;
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-align: right;
+  color: var(--text-light);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  word-break: break-all;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+}
+
+.ai-indicator {
+  display: none;
+}
+
+/* ===== Input ===== */
+.input-section {
+  margin-bottom: 16px;
+}
+
+.expression-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.expression-input:focus {
+  border-color: var(--bg-op);
+}
+
+.expression-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ===== Buttons ===== */
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  padding: 18px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn.num {
+  background: var(--bg-button);
+  color: var(--text-dark);
+}
+
+.btn.num:hover {
+  background: var(--bg-button-hover);
+}
+
+.btn.op {
+  background: var(--bg-op);
+  color: var(--text-light);
+}
+
+.btn.op:hover {
+  background: var(--bg-op-hover);
+}
+
+.btn.clear {
+  background: #a5a5a5;
+  color: var(--text-dark);
+}
+
+.btn.clear:hover {
+  background: #8e8e8e;
+}
+
+.btn.equals {
+  grid-column: span 4;
+  background: var(--bg-op);
+  color: var(--text-light);
+  font-size: 1.5rem;
+}
+
+.btn.equals:hover {
+  background: var(--bg-op-hover);
+}
+
+.ai-spark {
+  display: none;
+}
+
+/* ===== Result ===== */
+.result-container {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thinking {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.thinking.active {
+  display: flex;
+}
+
+.thinking-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.thinking-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--bg-op);
+  border-radius: 50%;
+  animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinking-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.thinking-dots span:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes thinking {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1);
+  }
+}
+
+.result {
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  display: none;
+  width: 100%;
+  line-height: 1.5;
+}
+
+.result.active {
+  display: block;
+}
+
+.result.error {
+  background: #ffebee;
+  border-color: #ffcdd2;
+  color: #c62828;
+}
+
+/* ===== Pro Banner ===== */
+.pro-banner {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.pro-banner p {
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.pro-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--bg-op);
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.pro-link:hover {
+  background: var(--bg-op-hover);
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.disclaimer {
+  margin-top: 4px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 360px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .btn {
+    padding: 14px;
+    font-size: 1.1rem;
+  }
+
+  .display {
+    font-size: 2rem;
+    padding: 16px 12px;
+  }
+}
+
+/* ===== Payment Modal ===== */
+.payment-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.payment-overlay.active {
+  display: flex;
+  opacity: 1;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.payment-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.payment-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.payment-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.payment-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.payment-price {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.price-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--bg-op);
+}
+
+.price-period {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.payment-features {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.payment-features p {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.payment-features p:last-child {
+  margin-bottom: 0;
+}
+
+.payment-form-container {
+  margin-bottom: 20px;
+}
+
+#payment-element {
+  margin-bottom: 16px;
+}
+
+.payment-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  text-align: center;
+  min-height: 20px;
+}
+
+.payment-button {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: var(--bg-op);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.payment-button:hover {
+  background: var(--bg-op-hover);
+}
+
+.payment-button:active {
+  transform: scale(0.98);
+}
+
+.payment-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.payment-note {
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.payment-skip {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.payment-skip:hover {
+  color: var(--text-dark);
+}
