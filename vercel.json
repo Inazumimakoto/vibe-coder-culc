@@ -27,9 +27,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "env": {
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key"
-  }
+  ]
 }
