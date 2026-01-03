@@ -25,22 +25,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        const prompt = `あなたは電卓AIです。以下の数式を計算してください。
-        
-数式: ${expression}
+        const prompt = `Calculate: ${expression}
 
-回答は**必ず**以下のJSON形式のみで返してください。Markdownのコードブロックは不要です。
-
-{
-  "value": "計算結果の数値（例: 2）",
-  "comment": "ユーモアのある一言コメント（例: 簡単すぎて眠くなっちゃった😴）"
-}
-
-計算できない場合や無効な入力の場合:
-{
-  "value": "Error",
-  "comment": "面白くツッコむエラーメッセージ"
-}`;
+Return ONLY the numerical result. No explanation, no comments, just the number.
+If invalid, return "Error".`;
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,

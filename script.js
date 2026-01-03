@@ -6,7 +6,6 @@ const display = document.getElementById('display');
 const equalsBtn = document.getElementById('equalsBtn');
 const clearBtn = document.getElementById('clearBtn');
 const thinking = document.getElementById('thinking');
-const result = document.getElementById('result');
 const paymentOverlay = document.getElementById('paymentOverlay');
 const paymentButton = document.getElementById('paymentButton');
 const evilCloseBtn = document.getElementById('evilCloseBtn');
@@ -16,7 +15,7 @@ const paymentMessage = document.getElementById('payment-message');
 
 // Calculator state
 let currentExpression = '';
-let pendingResult = null; // Object: { value, comment }
+let pendingResult = null;
 let stripe = null;
 let elements = null;
 let paymentElement = null;
@@ -30,7 +29,6 @@ const MAX_HOVER_COUNT = 10;
 function init() {
   stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
 
-  // Number and operator buttons
   document.querySelectorAll('.btn[data-value]').forEach(btn => {
     btn.addEventListener('click', () => {
       handleButtonClick(btn.dataset.value);
@@ -40,37 +38,28 @@ function init() {
   equalsBtn.addEventListener('click', calculate);
   clearBtn.addEventListener('click', clearAll);
 
-  // Evil close button - moves and shrinks (max 10 times)
   evilCloseBtn.addEventListener('mouseenter', handleEvilButtonHover);
-
-  // Mobile support: Only prevent default if we seek to move the button
   evilCloseBtn.addEventListener('touchstart', (e) => {
     if (closeButtonHoverCount < MAX_HOVER_COUNT) {
       handleEvilButtonHover(e);
     }
-    // If count >= MAX, we let the default click happen
   });
-
   evilCloseBtn.addEventListener('click', handleEvilButtonClick);
 }
 
-// Handle button click
 function handleButtonClick(value) {
   if (value === '±') {
-    // Toggle positive/negative
     if (currentExpression.startsWith('-')) {
       currentExpression = currentExpression.slice(1);
     } else if (currentExpression && currentExpression !== '0') {
       currentExpression = '-' + currentExpression;
     }
   } else if (value === '%') {
-    // Percentage
     if (currentExpression) {
       const num = parseFloat(currentExpression);
       currentExpression = String(num / 100);
     }
   } else {
-    // Regular input
     if (currentExpression === '0' && value !== '.') {
       currentExpression = value;
     } else {
@@ -80,12 +69,9 @@ function handleButtonClick(value) {
   updateDisplay();
 }
 
-// Update display
 function updateDisplay() {
-  // Format for display
   let displayText = currentExpression || '0';
 
-  // Limit display length
   if (displayText.length > 12) {
     display.style.fontSize = '3rem';
   } else if (displayText.length > 9) {
@@ -97,29 +83,22 @@ function updateDisplay() {
   display.textContent = displayText;
 }
 
-// Clear everything
 function clearAll() {
   currentExpression = '';
   display.textContent = '0';
   display.style.fontSize = '';
-  result.className = 'result';
-  result.textContent = '';
   thinking.classList.remove('active');
   pendingResult = null;
 }
 
-// Calculate using Gemini API
 async function calculate() {
   const expression = currentExpression.trim();
 
   if (!expression) {
-    showResult('数式を入力してください！', true);
     return;
   }
 
   thinking.classList.add('active');
-  result.className = 'result';
-  result.textContent = '';
 
   try {
     const response = await fetch('/api/calculate', {
@@ -134,39 +113,23 @@ async function calculate() {
     thinking.classList.remove('active');
 
     if (data.error) {
-      showResult(data.error, true);
+      display.textContent = 'Error';
     } else {
-      // Parse JSON result from Gemini (it might be a string containing JSON)
-      let parsedResult;
-      try {
-        // Handle case where Gemini returns Markdown code block
-        const cleanJson = data.result.replace(/```json\n|\n```/g, '').replace(/```/g, '');
-        parsedResult = JSON.parse(cleanJson);
-      } catch (e) {
-        // Fallback for plain text response
-        console.warn('Failed to parse JSON, using raw text', e);
-        parsedResult = { value: data.result, comment: '' };
-      }
-
-      pendingResult = parsedResult;
+      pendingResult = data.result.trim();
       showPaymentModal();
     }
   } catch (error) {
     thinking.classList.remove('active');
-    showResult('エラーが発生しました。もう一度お試しください。', true);
+    display.textContent = 'Error';
     console.error('Calculation error:', error);
   }
 }
 
-// Evil close button hover - make it run away (max 10 times)
 function handleEvilButtonHover(e) {
-  // Prevent default only if we are moving the button to avoid accidental clicks
-  // But on touchstart we often want to prevent default to stop scrolling/clicking
   if (e.type === 'touchstart') {
     e.preventDefault();
   }
 
-  // Stop running away after 10 times
   if (closeButtonHoverCount >= MAX_HOVER_COUNT) {
     return;
   }
@@ -177,7 +140,6 @@ function handleEvilButtonHover(e) {
   const modalRect = modal.getBoundingClientRect();
   const btnRect = evilCloseBtn.getBoundingClientRect();
 
-  // Random position within the modal
   const maxX = modalRect.width - btnRect.width - 20;
   const maxY = modalRect.height - btnRect.height - 20;
 
@@ -188,53 +150,26 @@ function handleEvilButtonHover(e) {
   evilCloseBtn.style.left = randomX + 'px';
   evilCloseBtn.style.top = randomY + 'px';
 
-  // Shrink the button after every 2 hovers
   if (closeButtonHoverCount % 2 === 0 && closeButtonSize > 14) {
     closeButtonSize -= 2;
     evilCloseBtn.style.width = closeButtonSize + 'px';
     evilCloseBtn.style.height = closeButtonSize + 'px';
     evilCloseBtn.style.fontSize = (closeButtonSize * 0.5) + 'px';
   }
-
-  // Taunt messages
-  const taunts = [
-    'あれ？どこ行った？',
-    '逃げちゃった😜',
-    'もう少し頑張って！',
-    '課金した方が早いよ？',
-    'そっちじゃないよ〜',
-    '小さくなっちゃった...',
-    'Pro会員になろう！',
-    'もうちょっと！',
-    'あと少し！',
-    'OK、諦めた...😔'
-  ];
-
-  paymentMessage.textContent = taunts[Math.min(closeButtonHoverCount - 1, taunts.length - 1)];
-  paymentMessage.style.color = '#ff9500';
 }
 
-// Evil close button click
 function handleEvilButtonClick() {
   hidePaymentModal();
 
   if (pendingResult) {
-    // Show standard result in display
-    currentExpression = String(pendingResult.value);
+    currentExpression = pendingResult;
     updateDisplay();
-
-    // Show comment in the result area if exists
-    if (pendingResult.comment) {
-      showResult(pendingResult.comment, false);
-    }
-
     pendingResult = null;
   }
 
   resetEvilButton();
 }
 
-// Reset evil button
 function resetEvilButton() {
   closeButtonHoverCount = 0;
   closeButtonSize = 24;
@@ -318,11 +253,9 @@ async function handlePayment() {
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       hidePaymentModal();
 
-      // Show result after payment
       if (pendingResult) {
-        currentExpression = String(pendingResult.value);
+        currentExpression = pendingResult;
         updateDisplay();
-        showResult('💎 Pro会員様、ようこそ！\n\n' + pendingResult.comment, false);
         pendingResult = null;
       }
     }
@@ -343,11 +276,6 @@ function setLoading(isLoading) {
     buttonText.classList.remove('hidden');
     buttonSpinner.classList.add('hidden');
   }
-}
-
-function showResult(message, isError) {
-  result.textContent = message;
-  result.className = 'result active' + (isError ? ' error' : '');
 }
 
 init();
