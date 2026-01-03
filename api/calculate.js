@@ -67,8 +67,11 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         if (data.error) {
-            console.error('Gemini API error:', data.error);
-            return res.status(500).json({ error: 'AIがお休み中です...また後で試してね😅' });
+            console.error('Gemini API error:', JSON.stringify(data.error));
+            return res.status(500).json({
+                error: 'AIがお休み中です...また後で試してね😅',
+                debug: data.error
+            });
         }
 
         const result = data.candidates?.[0]?.content?.parts?.[0]?.text;
