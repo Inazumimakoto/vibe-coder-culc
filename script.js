@@ -16,8 +16,7 @@ const paymentMessage = document.getElementById('payment-message');
 
 // Calculator state
 let currentExpression = '';
-let displayValue = '0';
-let pendingResult = null;
+let pendingResult = null; // Object: { value, comment }
 let stripe = null;
 let elements = null;
 let paymentElement = null;
@@ -43,7 +42,15 @@ function init() {
 
   // Evil close button - moves and shrinks (max 10 times)
   evilCloseBtn.addEventListener('mouseenter', handleEvilButtonHover);
-  evilCloseBtn.addEventListener('touchstart', handleEvilButtonHover);
+
+  // Mobile support: Only prevent default if we seek to move the button
+  evilCloseBtn.addEventListener('touchstart', (e) => {
+    if (closeButtonHoverCount < MAX_HOVER_COUNT) {
+      handleEvilButtonHover(e);
+    }
+    // If count >= MAX, we let the default click happen
+  });
+
   evilCloseBtn.addEventListener('click', handleEvilButtonClick);
 }
 
@@ -129,7 +136,19 @@ async function calculate() {
     if (data.error) {
       showResult(data.error, true);
     } else {
-      pendingResult = data.result;
+      // Parse JSON result from Gemini (it might be a string containing JSON)
+      let parsedResult;
+      try {
+        // Handle case where Gemini returns Markdown code block
+        const cleanJson = data.result.replace(/```json\n|\n```/g, '').replace(/```/g, '');
+        parsedResult = JSON.parse(cleanJson);
+      } catch (e) {
+        // Fallback for plain text response
+        console.warn('Failed to parse JSON, using raw text', e);
+        parsedResult = { value: data.result, comment: '' };
+      }
+
+      pendingResult = parsedResult;
       showPaymentModal();
     }
   } catch (error) {
@@ -141,7 +160,11 @@ async function calculate() {
 
 // Evil close button hover - make it run away (max 10 times)
 function handleEvilButtonHover(e) {
-  e.preventDefault();
+  // Prevent default only if we are moving the button to avoid accidental clicks
+  // But on touchstart we often want to prevent default to stop scrolling/clicking
+  if (e.type === 'touchstart') {
+    e.preventDefault();
+  }
 
   // Stop running away after 10 times
   if (closeButtonHoverCount >= MAX_HOVER_COUNT) {
@@ -196,7 +219,15 @@ function handleEvilButtonClick() {
   hidePaymentModal();
 
   if (pendingResult) {
-    showResult('😅 お疲れ様！ようやく見れたね！\n\n' + pendingResult, false);
+    // Show standard result in display
+    currentExpression = String(pendingResult.value);
+    updateDisplay();
+
+    // Show comment in the result area if exists
+    if (pendingResult.comment) {
+      showResult(pendingResult.comment, false);
+    }
+
     pendingResult = null;
   }
 
@@ -286,8 +317,14 @@ async function handlePayment() {
       setLoading(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       hidePaymentModal();
-      showResult('💎 Pro会員様、ようこそ！\n\n' + pendingResult, false);
-      pendingResult = null;
+
+      // Show result after payment
+      if (pendingResult) {
+        currentExpression = String(pendingResult.value);
+        updateDisplay();
+        showResult('💎 Pro会員様、ようこそ！\n\n' + pendingResult.comment, false);
+        pendingResult = null;
+      }
     }
   } catch (error) {
     console.error('Payment error:', error);
