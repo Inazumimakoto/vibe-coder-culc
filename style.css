@@ -495,10 +495,6 @@ body {
 
 /* ===== Responsive ===== */
 @media (max-width: 420px) {
-  .ai-header {
-    /* Hide on mobile to save space */
-  }
-
   .container {
     padding: 12px;
     padding-top: max(12px, env(safe-area-inset-top));
