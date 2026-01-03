@@ -496,7 +496,6 @@ body {
 /* ===== Responsive ===== */
 @media (max-width: 420px) {
   .ai-header {
-    display: none;
     /* Hide on mobile to save space */
   }
 
